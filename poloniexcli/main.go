@@ -30,7 +30,7 @@ func main() {
 	var debugLogging bool
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
-			Name:        "debug, d",
+			Name:        "debug, D",
 			Usage:       "Enable debug logging",
 			Destination: &debugLogging,
 		},
@@ -79,6 +79,12 @@ func main() {
 					Usage:       "Depth of the orderbook to print",
 					Value:       50,
 					Destination: &orderbookCommand.Depth,
+				},
+				cli.StringFlag{
+					Name:        "format, f",
+					Usage:       "Output format, possible values are 'table' and 'json'",
+					Value:       commands.FormatAsJSON,
+					Destination: &orderbookCommand.Format,
 				},
 			},
 		},
