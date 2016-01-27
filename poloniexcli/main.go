@@ -83,7 +83,7 @@ func main() {
 				cli.StringFlag{
 					Name:        "format, f",
 					Usage:       "Output format, possible values are 'table' and 'json'",
-					Value:       commands.FormatAsJSON,
+					Value:       commands.FormatAsTable,
 					Destination: &orderbookCommand.Format,
 				},
 			},

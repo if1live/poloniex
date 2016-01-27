@@ -2,8 +2,10 @@ package commands
 
 import (
 	"encoding/json"
-	"errors"
 	"os"
+	"strings"
+	"text/tabwriter"
+	"text/template"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/robvanmieghem/poloniex/poloniexclient"
@@ -24,9 +26,73 @@ type OrderBookCommand struct {
 	Format       string
 }
 
-func formatAsTable(orderbook *poloniexclient.OrderBook) error {
+const orderbookHeader = "Sell      \t\t\t\tBuy       \t\t\t\t\nPrice     \t{{.Currency}}       \t{{.BaseCurrency}}       \tSum({{.BaseCurrency}})  \tPrice     \t{{.Currency}}       \t{{.BaseCurrency}}       \t  Sum({{.BaseCurrency}})\n"
+const orderbookTableFormat = "{{printf \"%.8f\" .Ask.Price}}\t{{printf \"%.8f\" .Ask.Amount}}\t{{printf \"%.8f\" .AskTotal}}\t{{printf \"%.8f\" .AskSum}}\t{{printf \"%.8f\" .Bid.Price}}\t{{printf \"%.8f\" .Bid.Amount}}\t{{printf \"%.8f\" .BidTotal}}\t  {{printf \"%.8f\" .BidSum}}\n"
+
+func formatAsTable(orderbook *poloniexclient.OrderBook) (err error) {
 	log.Debug("Formatting as a table")
-	return errors.New("Table output is not implemented")
+
+	t := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', tabwriter.AlignRight)
+	defer func() {
+		t.Flush()
+	}()
+
+	tmpl, err := template.New("").Parse(orderbookHeader)
+	if err != nil {
+		log.Error("Template parsing error: ", err)
+		return
+	}
+	var headerData struct {
+		Currency     string
+		BaseCurrency string
+	}
+	currencies := strings.Split(orderbook.CurrencyPair, "_")
+	headerData.BaseCurrency = currencies[0]
+	headerData.Currency = currencies[1]
+
+	err = tmpl.Execute(t, headerData)
+	if err != nil {
+		log.Error("Error executing template: ", err)
+		return
+	}
+
+	tmpl, err = template.New("").Parse(orderbookTableFormat)
+	if err != nil {
+		log.Error("Template parsing error: ", err)
+		return
+	}
+
+	var askSum, bidSum float64
+	for i := 0; i < len(orderbook.Asks) || i < len(orderbook.Bids); i++ {
+		askEntry := orderbook.Asks[i]
+		bidEntry := orderbook.Bids[i]
+		//TODO: if not equal number of Asks and Bids
+		askTotal := askEntry.Price * askEntry.Amount
+		bidTotal := bidEntry.Price * bidEntry.Amount
+		askSum += askTotal
+		bidSum += bidTotal
+		data := struct {
+			Ask      poloniexclient.OrderBookEntry
+			Bid      poloniexclient.OrderBookEntry
+			AskTotal float64
+			AskSum   float64
+			BidTotal float64
+			BidSum   float64
+		}{
+			askEntry,
+			bidEntry,
+			askTotal,
+			askSum,
+			bidTotal,
+			bidSum,
+		}
+		err = tmpl.Execute(t, data)
+		if err != nil {
+			log.Error("Error executing template: ", err)
+			return
+		}
+	}
+	return
 }
 
 func formatAsJSON(orderbook *poloniexclient.OrderBook) error {
