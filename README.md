@@ -2,6 +2,17 @@
 
 [![Build Status](https://travis-ci.org/robvanmieghem/poloniex.svg?branch=master)](https://travis-ci.org/robvanmieghem/poloniex)
 
+## Status
+
+It's useless right now since only a small part of the poloniex api is implemented. If you feel like adding another one, don't hesitate to create a pull request.
+
+Currently implemented:
+
+* Public API Methods
+    * returnOrderBook
+
+
+
 ## Use as a client library
 
 `import github.com/robvanmieghem/poloniex/poloniexclient`
@@ -28,4 +39,4 @@ $ ./poloniexcli orderbook -c BTC_ETH -d 10
   0.00630025    5.52252123  0.03479326  4.02836336  0.00623401   20.04000000  0.12492956  3.27497859
 ```
 
-By default, the output is in a table format but by passing the format parameter, you can also have it output json.
+By default, the output is in a table format but by passing the json format parameter, the output is json.
