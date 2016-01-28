@@ -2,7 +2,6 @@ package poloniexclient
 
 import (
 	"encoding/json"
-	"net/http"
 	"strconv"
 
 	log "github.com/Sirupsen/logrus"
@@ -34,31 +33,18 @@ type OrderBook struct {
 	Bids         []OrderBookEntry
 }
 
-//ReturnOrderBook return the orderbook for a specific currencypair up to a certain depth
+//ReturnOrderBook returns the orderbook for a specific currencypair up to a certain depth
 func (poloniexClient *PoloniexClient) ReturnOrderBook(currencypair string, depth int) (orderbook *OrderBook, err error) {
 	log.Debug("ReturnOrderBook")
 
-	req, err := http.NewRequest("GET", poloniexPublicAPIUrl, nil)
-	if err != nil {
-		return
-	}
-	query := req.URL.Query()
-	query.Set("command", "returnOrderBook")
-	query.Set("currencyPair", currencypair)
-	query.Set("depth", strconv.Itoa(depth))
-	req.URL.RawQuery = query.Encode()
-
-	logRequest(req)
-	resp, err := poloniexClient.httpClient.Do(req)
-	logResponse(resp, err)
-
-	if err != nil {
-		return
-	}
-
-	defer resp.Body.Close()
 	orderbook = new(OrderBook)
 	orderbook.CurrencyPair = currencypair
-	err = json.NewDecoder(resp.Body).Decode(&orderbook)
+
+	commandParameters := make(map[string]string)
+
+	commandParameters["currencyPair"] = currencypair
+	commandParameters["depth"] = strconv.Itoa(depth)
+
+	err = poloniexClient.executePublicAPICommand("returnOrderBook", commandParameters, orderbook)
 	return
 }

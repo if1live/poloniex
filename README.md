@@ -4,7 +4,7 @@
 
 ## Status
 
-It's useless right now since only a small part of the poloniex api is implemented. If you feel like adding another one, don't hesitate to create a pull request.
+It's useless right now since only a small part of the poloniex api is implemented. If you feel like implementing more, don't hesitate to create a pull request.
 
 Currently implemented:
 

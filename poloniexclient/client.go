@@ -1,6 +1,7 @@
 package poloniexclient
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httputil"
 
@@ -50,4 +51,31 @@ func logResponse(response *http.Response, err error) {
 		}
 		log.Debugf("%s\n\n", data)
 	}
+}
+
+func (poloniexClient *PoloniexClient) executePublicAPICommand(command string, parameters map[string]string, target interface{}) (err error) {
+	log.Debug("Executing public API command: ", command)
+	req, err := http.NewRequest("GET", poloniexPublicAPIUrl, nil)
+	if err != nil {
+		return
+	}
+	query := req.URL.Query()
+	query.Set("command", command)
+	for key, value := range parameters {
+		query.Set(key, value)
+	}
+
+	req.URL.RawQuery = query.Encode()
+
+	logRequest(req)
+	resp, err := poloniexClient.httpClient.Do(req)
+	logResponse(resp, err)
+
+	if err != nil {
+		return
+	}
+
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(target)
+	return
 }

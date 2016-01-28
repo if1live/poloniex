@@ -2,7 +2,6 @@ package poloniexclient
 
 import (
 	"encoding/json"
-	"net/http"
 	"strconv"
 
 	log "github.com/Sirupsen/logrus"
@@ -52,26 +51,13 @@ type LoanOrders struct {
 func (poloniexClient *PoloniexClient) ReturnLoanOrders(currency string) (loanorders *LoanOrders, err error) {
 	log.Debug("ReturnLoanOrders")
 
-	req, err := http.NewRequest("GET", poloniexPublicAPIUrl, nil)
-	if err != nil {
-		return
-	}
-	query := req.URL.Query()
-	query.Set("command", "returnLoanOrders")
-	query.Set("currency", currency)
-	req.URL.RawQuery = query.Encode()
-
-	logRequest(req)
-	resp, err := poloniexClient.httpClient.Do(req)
-	logResponse(resp, err)
-
-	if err != nil {
-		return
-	}
-
-	defer resp.Body.Close()
 	loanorders = new(LoanOrders)
 	loanorders.Currency = currency
-	err = json.NewDecoder(resp.Body).Decode(&loanorders)
+
+	commandParameters := make(map[string]string)
+	commandParameters["currency"] = currency
+
+	err = poloniexClient.executePublicAPICommand("returnLoanOrders", commandParameters, loanorders)
+
 	return
 }
