@@ -17,8 +17,9 @@ var ApplicationName = "Poloniex client"
 func main() {
 
 	var (
-		credentials      = commands.Credentials{}
-		orderbookCommand = &commands.OrderBookCommand{}
+		credentials       = commands.Credentials{}
+		orderbookCommand  = &commands.OrderBookCommand{}
+		loanordersCommand = &commands.LoanOrdersCommand{}
 	)
 
 	app := cli.NewApp()
@@ -62,7 +63,6 @@ func main() {
 			Name:  "orderbook",
 			Usage: "Print the orderbook",
 			Action: func(c *cli.Context) {
-				orderbookCommand.Credentials = credentials
 				if err := orderbookCommand.Execute(); err != nil {
 					log.Error(err)
 				}
@@ -85,6 +85,28 @@ func main() {
 					Usage:       "Output format, possible values are 'table' and 'json'",
 					Value:       commands.FormatAsTable,
 					Destination: &orderbookCommand.Format,
+				},
+			},
+		}, {
+			Name:  "loanorders",
+			Usage: "Print the loan orders",
+			Action: func(c *cli.Context) {
+				if err := loanordersCommand.Execute(); err != nil {
+					log.Error(err)
+				}
+			},
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:        "currency,c",
+					Usage:       "Currency",
+					Value:       "BTC",
+					Destination: &loanordersCommand.Currency,
+				},
+				cli.StringFlag{
+					Name:        "format, f",
+					Usage:       "Output format, possible values are 'table' and 'json'",
+					Value:       commands.FormatAsTable,
+					Destination: &loanordersCommand.Format,
 				},
 			},
 		},

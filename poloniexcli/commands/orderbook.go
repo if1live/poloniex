@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"encoding/json"
 	"os"
 	"strings"
 	"text/tabwriter"
@@ -11,16 +10,8 @@ import (
 	"github.com/robvanmieghem/poloniex/poloniexclient"
 )
 
-const (
-	//FormatAsTable makes the command output the result in a nice table
-	FormatAsTable = "table"
-	//FormatAsJSON makes the command output the result as json
-	FormatAsJSON = "json"
-)
-
 //OrderBookCommand returns the orderbook for a given currencypair
 type OrderBookCommand struct {
-	Credentials
 	CurrencyPair string
 	Depth        int
 	Format       string
@@ -29,7 +20,7 @@ type OrderBookCommand struct {
 const orderbookHeader = "Sell      \t\t\t\tBuy       \t\t\t\t\nPrice     \t{{.Currency}}       \t{{.BaseCurrency}}       \tSum({{.BaseCurrency}})  \tPrice     \t{{.Currency}}       \t{{.BaseCurrency}}       \t  Sum({{.BaseCurrency}})\n"
 const orderbookTableFormat = "{{printf \"%.8f\" .Ask.Price}}\t{{printf \"%.8f\" .Ask.Amount}}\t{{printf \"%.8f\" .AskTotal}}\t{{printf \"%.8f\" .AskSum}}\t{{printf \"%.8f\" .Bid.Price}}\t{{printf \"%.8f\" .Bid.Amount}}\t{{printf \"%.8f\" .BidTotal}}\t  {{printf \"%.8f\" .BidSum}}\n"
 
-func formatAsTable(orderbook *poloniexclient.OrderBook) (err error) {
+func formatOrderBookAsTable(orderbook *poloniexclient.OrderBook) (err error) {
 	log.Debug("Formatting as a table")
 
 	t := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', tabwriter.AlignRight)
@@ -95,16 +86,11 @@ func formatAsTable(orderbook *poloniexclient.OrderBook) (err error) {
 	return
 }
 
-func formatAsJSON(orderbook *poloniexclient.OrderBook) error {
-	log.Debug("Formatting as json")
-	return json.NewEncoder(os.Stdout).Encode(orderbook)
-}
-
 //Execute an OrderBookCommand
 func (command *OrderBookCommand) Execute() (err error) {
 	log.Debug("Executing OrderBook Command:\n\tCurrency pair: ", command.CurrencyPair, "\n\tDepth: ", command.Depth)
 
-	c, err := poloniexclient.NewClient(command.Credentials.Key, command.Credentials.Secret)
+	c, err := poloniexclient.NewClient("", "")
 	if err != nil {
 		return
 	}
@@ -117,7 +103,7 @@ func (command *OrderBookCommand) Execute() (err error) {
 	if command.Format == FormatAsJSON {
 		err = formatAsJSON(orderbook)
 	} else {
-		err = formatAsTable(orderbook)
+		err = formatOrderBookAsTable(orderbook)
 	}
 	return
 }

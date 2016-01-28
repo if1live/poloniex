@@ -38,7 +38,7 @@ type OrderBook struct {
 func (poloniexClient *PoloniexClient) ReturnOrderBook(currencypair string, depth int) (orderbook *OrderBook, err error) {
 	log.Debug("ReturnOrderBook")
 
-	req, err := http.NewRequest("GET", "http://poloniex.com/public", nil)
+	req, err := http.NewRequest("GET", poloniexPublicAPIUrl, nil)
 	if err != nil {
 		return
 	}

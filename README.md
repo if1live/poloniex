@@ -10,6 +10,7 @@ Currently implemented:
 
 * Public API Methods
     * returnOrderBook
+    * returnLoanOrders
 
 
 

@@ -7,6 +7,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+const poloniexPublicAPIUrl = "http://poloniex.com/public"
+
 //PoloniexClient is a client to the poloniex (https://www.poloniex.com) api
 type PoloniexClient struct {
 	Key        string
