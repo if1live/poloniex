@@ -54,8 +54,9 @@ func (poloniexClient *PoloniexClient) ReturnLoanOrders(currency string) (loanord
 	loanorders = new(LoanOrders)
 	loanorders.Currency = currency
 
-	commandParameters := make(map[string]string)
-	commandParameters["currency"] = currency
+	commandParameters := map[string]string{
+		"currency": currency,
+	}
 
 	err = poloniexClient.executePublicAPICommand("returnLoanOrders", commandParameters, loanorders)
 

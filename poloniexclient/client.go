@@ -1,14 +1,24 @@
 package poloniexclient
 
 import (
+	"crypto/hmac"
+	"crypto/sha512"
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
+	"strconv"
+	"strings"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 )
 
-const poloniexPublicAPIUrl = "http://poloniex.com/public"
+const (
+	poloniexPublicAPIUrl  = "http://poloniex.com/public"
+	poloniexTradingAPIUrl = "https://poloniex.com/tradingApi"
+)
 
 //PoloniexClient is a client to the poloniex (https://www.poloniex.com) api
 type PoloniexClient struct {
@@ -29,7 +39,7 @@ func NewClient(key, secret string) (client *PoloniexClient, err error) {
 
 func logRequest(request *http.Request) {
 	if log.GetLevel() == log.DebugLevel {
-		data, err := httputil.DumpRequest(request, true)
+		data, err := httputil.DumpRequestOut(request, true)
 		if err != nil {
 			log.Error("Error dumping request: ", err)
 			return
@@ -66,6 +76,44 @@ func (poloniexClient *PoloniexClient) executePublicAPICommand(command string, pa
 	}
 
 	req.URL.RawQuery = query.Encode()
+
+	logRequest(req)
+	resp, err := poloniexClient.httpClient.Do(req)
+	logResponse(resp, err)
+
+	if err != nil {
+		return
+	}
+
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(target)
+	return
+}
+
+func (poloniexClient *PoloniexClient) executeTradingAPICommand(command string, parameters map[string]string, target interface{}) (err error) {
+	log.Debug("Executing trading API command: ", command)
+
+	form := url.Values{}
+	form.Add("command", command)
+	for key, value := range parameters {
+		form.Add(key, value)
+	}
+	//TODO: really small chance of collision
+	form.Add("nonce", strconv.FormatInt(time.Now().UnixNano(), 10))
+
+	body := form.Encode()
+	log.Debug("BODY:", body, "-ENDBODY")
+	req, err := http.NewRequest("POST", poloniexTradingAPIUrl, strings.NewReader(body))
+	if err != nil {
+		return
+	}
+	req.Header.Add("Key", poloniexClient.Key)
+
+	mac := hmac.New(sha512.New, []byte(poloniexClient.Secret))
+	mac.Write([]byte(body))
+	signature := hex.EncodeToString(mac.Sum(nil))
+
+	req.Header.Add("Sign", signature)
 
 	logRequest(req)
 	resp, err := poloniexClient.httpClient.Do(req)

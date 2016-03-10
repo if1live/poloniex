@@ -40,10 +40,10 @@ func (poloniexClient *PoloniexClient) ReturnOrderBook(currencypair string, depth
 	orderbook = new(OrderBook)
 	orderbook.CurrencyPair = currencypair
 
-	commandParameters := make(map[string]string)
-
-	commandParameters["currencyPair"] = currencypair
-	commandParameters["depth"] = strconv.Itoa(depth)
+	commandParameters := map[string]string{
+		"currencyPair": currencypair,
+		"depth":        strconv.Itoa(depth),
+	}
 
 	err = poloniexClient.executePublicAPICommand("returnOrderBook", commandParameters, orderbook)
 	return

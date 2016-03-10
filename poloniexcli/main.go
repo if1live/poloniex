@@ -20,6 +20,7 @@ func main() {
 		credentials       = commands.Credentials{}
 		orderbookCommand  = &commands.OrderBookCommand{}
 		loanordersCommand = &commands.LoanOrdersCommand{}
+		balancesCommand   = &commands.BalancesCommand{}
 	)
 
 	app := cli.NewApp()
@@ -107,6 +108,23 @@ func main() {
 					Usage:       "Output format, possible values are 'table' and 'json'",
 					Value:       commands.FormatAsTable,
 					Destination: &loanordersCommand.Format,
+				},
+			},
+		}, {
+			Name:  "balances",
+			Usage: "Print the available balances",
+			Action: func(c *cli.Context) {
+				balancesCommand.Credentials = credentials
+				if err := balancesCommand.Execute(); err != nil {
+					log.Error(err)
+				}
+			},
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:        "format, f",
+					Usage:       "Output format, possible values are 'table' and 'json'",
+					Value:       commands.FormatAsTable,
+					Destination: &balancesCommand.Format,
 				},
 			},
 		},
