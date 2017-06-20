@@ -115,6 +115,9 @@ func (poloniexClient *PoloniexClient) executeTradingAPICommand(command string, p
 
 	req.Header.Add("Sign", signature)
 
+	// with content-type, "error: invalid command" raise
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
 	logRequest(req)
 	resp, err := poloniexClient.httpClient.Do(req)
 	logResponse(resp, err)
