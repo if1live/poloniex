@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strconv"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 //OrderBookEntry is a value/amount combination representing an entry in an OrderBook

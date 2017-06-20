@@ -5,7 +5,7 @@ import (
 	"text/tabwriter"
 	"text/template"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/robvanmieghem/poloniex/poloniexclient"
 )
 

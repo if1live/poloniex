@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strconv"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 //LoanOrder is a single an order (offer or demand) for a specific rate
